@@ -12,26 +12,26 @@ import pandas as pd
 
 
 # ------------------------------------------------
-INPUT_XLSX = r"/Users/adrianchenoweth/Downloads/UNG Historical Trading.xlsx"
+year5_excel = r"/Users/adrianchenoweth/Downloads/UNG Historical Trading.xlsx"
 DATE_COL = "Date"
 PRICE_COL = "Close"
 
-BUY_DAY = 20
-BUY_MONTH = 12
-SELL_DAY = 11
-SELL_MONTH = 1
+buy_day = 20
+buy_month = 12
+sell_day = 11
+sell_month = 1
 # ------------------------------------------------
 
 # ------------------------------------------------
-df = pd.read_excel(INPUT_XLSX, nrows=265)
+df = pd.read_excel(year5_excel, nrows=265)
 df.columns = df.columns.str.strip() 
-df[DATE_COL] = pd.to_datetime(df[DATE_COL], errors='coerce')
+df[DATE_COL] = pd.to_datetime(df[DATE_COL], errors="coerce")
 df = df.dropna(subset=[DATE_COL])
 df = df.sort_values(DATE_COL).reset_index(drop=True)
 
-df['Year'] = df[DATE_COL].dt.year
-df['Month'] = df[DATE_COL].dt.month
-df['Day'] = df[DATE_COL].dt.day
+df["Year"] = df[DATE_COL].dt.year
+df["Month"] = df[DATE_COL].dt.month
+df["Day"] = df[DATE_COL].dt.day
 # ------------------------------------------------
 
 # ------------------------------------------------
@@ -42,8 +42,8 @@ def returnp(buy, sell):
 # ------------------------------------------------
 
 # ------------------------------------------------
-for year in df['Year'].unique():
-    buy_data = df[(df['Year'] == year) & (df['Month'] == BUY_MONTH) & (df['Day'] >= BUY_DAY)]
+for year in df["Year"].unique():
+    buy_data = df[(df["Year"] == year) & (df["Month"] == buy_month) & (df["Day"] >= buy_day)]
     if buy_data.empty:
         continue
     buy_row = buy_data.iloc[0] #acces row and column, can switch to volaility calculation with open pricing as well vs month average using lin reg and noise
@@ -51,7 +51,7 @@ for year in df['Year'].unique():
     buy_price = buy_row[PRICE_COL]
 
     # sell for 100%, maybe try messing with ratio split to average daily returns and risk
-    sell_data = df[(df['Year'] == year+1) & (df['Month'] == SELL_MONTH) & (df['Day'] <= SELL_DAY)]
+    sell_data = df[(df["Year"] == year+1) & (df["Month"] == sell_month) & (df["Day"] <= sell_day)]
     if sell_data.empty:
         continue
     sell_row = sell_data.iloc[-1]
@@ -62,23 +62,23 @@ for year in df['Year'].unique():
     ret = returnp(buy_price, sell_price)
     
     results.append({
-        'Year': year,
-        'BuyDate': buy_date,
-        'BuyPrice': buy_price,
-        'SellDate': sell_date,
-        'SellPrice': sell_price,
-        'Return': ret
+        "Year": year,
+        "BuyDate": buy_date,
+        "BuyPrice": buy_price,
+        "SellDate": sell_date,
+        "SellPrice": sell_price,
+        "Return": ret
     })
 
 res_df = pd.DataFrame(results)
 # ------------------------------------------------
 
 # % prof
-pct_profitable = (res_df['Return'] > 0).mean() * 100
+pct_profitable = (res_df["Return"] > 0).mean() * 100
 # mean return
-avg_return = res_df['Return'].mean()
+avg_return = res_df["Return"].mean()
 # median return
-median_return = res_df['Return'].median()
+median_return = res_df["Return"].median()
 
 print("Yearly strategy results:")
 print(res_df)
